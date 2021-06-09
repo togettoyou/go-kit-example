@@ -3,47 +3,54 @@ package http
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/endpoint"
+	kitLog "github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/transport"
-	kithttp "github.com/go-kit/kit/transport/http"
+	kitHttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"github.com/togettoyou/go-kit-example/hello/endpoints"
+	"log"
 	"net/http"
 	"os"
 )
 
 func MakeHttpHandler(eps endpoints.HelloEndPoints) http.Handler {
 	r := mux.NewRouter()
-
-	kitLog := log.NewLogfmtLogger(os.Stderr)
-	kitLog = log.With(kitLog, "ts", log.DefaultTimestampUTC)
-	kitLog = log.With(kitLog, "caller", log.DefaultCaller)
-	options := []kithttp.ServerOption{
-		kithttp.ServerErrorHandler(transport.NewLogErrorHandler(kitLog)),
-		kithttp.ServerErrorEncoder(encodeError),
-	}
-
-	r.Methods("GET").Path("/").Handler(kithttp.NewServer(
-		eps.SayHelloEndpoint,
-		decodeSayHelloRequest,
-		encodeJSONResponse,
-		options...,
-	))
-
+	options := getServerOption()
+	r.Methods("GET").Path("/name").Handler(newServer(eps.GetNameEndpoint, options))
+	r.Methods("GET").Path("/age").Handler(newServer(eps.GetAgeEndpoint, options))
 	return r
 }
 
+func newServer(e endpoint.Endpoint, options []kitHttp.ServerOption) http.Handler {
+	return kitHttp.NewServer(
+		e,
+		decodeRequest,
+		encodeJSONResponse,
+		options...,
+	)
+}
+
+func getServerOption() []kitHttp.ServerOption {
+	logger := kitLog.NewLogfmtLogger(os.Stderr)
+	logger = kitLog.With(logger, "ts", kitLog.DefaultTimestampUTC)
+	logger = kitLog.With(logger, "caller", kitLog.DefaultCaller)
+	options := []kitHttp.ServerOption{
+		kitHttp.ServerErrorHandler(transport.NewLogErrorHandler(logger)),
+		kitHttp.ServerErrorEncoder(encodeError),
+	}
+	return options
+}
+
 // Request拦截
-// 参数校验
-func decodeSayHelloRequest(ctx context.Context, r *http.Request) (interface{}, error) {
-	fmt.Println("decodeSayHelloRequest")
+func decodeRequest(ctx context.Context, r *http.Request) (interface{}, error) {
+	log.Println("Request拦截-decodeRequest")
 	return nil, nil
 }
 
 // Response拦截
 func encodeJSONResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
-	fmt.Println("encodeJSONResponse")
+	log.Println("Response拦截-encodeJSONResponse")
 	w.Header().Set("Content-Type", "application/json;charset=utf-8")
 	return json.NewEncoder(w).Encode(response)
 }

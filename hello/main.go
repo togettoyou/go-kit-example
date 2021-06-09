@@ -4,14 +4,18 @@ import (
 	"github.com/togettoyou/go-kit-example/hello/dao"
 	"github.com/togettoyou/go-kit-example/hello/endpoints"
 	"github.com/togettoyou/go-kit-example/hello/service"
-	httptransport "github.com/togettoyou/go-kit-example/hello/transport/http"
+	httpTransport "github.com/togettoyou/go-kit-example/hello/transport/http"
+	"log"
 	"net/http"
 )
 
 func main() {
-	helloService := service.MakeHelloServiceImpl(&dao.HelloDAOImpl{})
-	httpHandler := httptransport.MakeHttpHandler(endpoints.HelloEndPoints{
-		SayHelloEndpoint: endpoints.MakeSayHelloEndpoint(helloService),
-	})
-	http.ListenAndServe(":8888", httpHandler)
+	helloDao := dao.NewHelloDAOImpl()
+	helloService := service.NewHelloServiceImpl(helloDao)
+	helloEndpoint := endpoints.HelloEndPoints{
+		GetNameEndpoint: endpoints.MakeGetNameEndpoint(helloService),
+		GetAgeEndpoint:  endpoints.MakeGetAgeEndpoint(helloService),
+	}
+	httpHandler := httpTransport.MakeHttpHandler(helloEndpoint)
+	log.Fatalln(http.ListenAndServe(":8888", httpHandler))
 }

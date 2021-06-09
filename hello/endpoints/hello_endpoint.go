@@ -2,18 +2,26 @@ package endpoints
 
 import (
 	"context"
-	"fmt"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/togettoyou/go-kit-example/hello/service"
+	"log"
 )
 
 type HelloEndPoints struct {
-	SayHelloEndpoint endpoint.Endpoint
+	GetNameEndpoint endpoint.Endpoint
+	GetAgeEndpoint  endpoint.Endpoint
 }
 
-func MakeSayHelloEndpoint(helloService service.HelloService) endpoint.Endpoint {
+func MakeGetNameEndpoint(helloService service.HelloService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		fmt.Println("endpoint层")
-		return helloService.SayHello(ctx), nil
+		log.Println("endpoint层-MakeGetNameEndpoint")
+		return helloService.GetName(ctx), nil
+	}
+}
+
+func MakeGetAgeEndpoint(helloService service.HelloService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		log.Println("endpoint层-MakeGetAgeEndpoint")
+		return helloService.GetAge(ctx), nil
 	}
 }

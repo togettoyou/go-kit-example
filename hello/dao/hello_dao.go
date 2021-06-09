@@ -1,28 +1,32 @@
 package dao
 
 import (
-	"fmt"
+	"context"
+	"log"
 )
 
-// 数据库实体模型
+// HelloEntity 数据库实体模型
 type HelloEntity struct {
-	Msg string
-}
-
-func (HelloEntity) TableName() string {
-	return "hello"
+	Name string
+	Age  uint
 }
 
 type HelloDAO interface {
-	QueryMsg() *HelloEntity
+	Query(ctx context.Context) *HelloEntity
 }
 
-// HelloDAO 接口实现
-type HelloDAOImpl struct {
+// ------------------接口实现------------------
+
+type helloDAOImpl struct {
+	//db *DB
 }
 
-func (helloDAO *HelloDAOImpl) QueryMsg() *HelloEntity {
-	fmt.Println("dao层")
+func NewHelloDAOImpl() HelloDAO {
+	return &helloDAOImpl{}
+}
+
+func (helloDAO *helloDAOImpl) Query(ctx context.Context) *HelloEntity {
+	log.Println("dao层-Query")
 	// 模拟查询数据库
-	return &HelloEntity{Msg: "Hello World"}
+	return &HelloEntity{Name: "togettoyou", Age: 22}
 }

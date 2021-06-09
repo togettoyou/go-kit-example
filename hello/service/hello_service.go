@@ -2,25 +2,35 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"github.com/togettoyou/go-kit-example/hello/dao"
+	"log"
 )
 
 type HelloService interface {
-	SayHello(ctx context.Context) string
+	GetName(ctx context.Context) string
+	GetAge(ctx context.Context) uint
 }
 
-type HelloServiceImpl struct {
+// ------------------接口实现------------------
+
+type helloServiceImpl struct {
 	helloDAO dao.HelloDAO
 }
 
-func MakeHelloServiceImpl(helloDAO dao.HelloDAO) HelloService {
-	return &HelloServiceImpl{
+func NewHelloServiceImpl(helloDAO dao.HelloDAO) HelloService {
+	return &helloServiceImpl{
 		helloDAO,
 	}
 }
 
-func (s HelloServiceImpl) SayHello(ctx context.Context) string {
-	fmt.Println("service层")
-	return s.helloDAO.QueryMsg().Msg
+func (s helloServiceImpl) GetName(ctx context.Context) string {
+	log.Println("service层-GetName")
+	// 模拟业务处理
+	return s.helloDAO.Query(ctx).Name
+}
+
+func (s helloServiceImpl) GetAge(ctx context.Context) uint {
+	log.Println("service层-GetAge")
+	// 模拟业务处理
+	return s.helloDAO.Query(ctx).Age
 }

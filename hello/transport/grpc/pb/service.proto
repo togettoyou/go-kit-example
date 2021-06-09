@@ -3,14 +3,18 @@ syntax = "proto3";
 package pb;
 option go_package = "/pb";
 
-service Service {
-  rpc SayHello (HelloRequest) returns (HelloResponse) {}
+service HelloService {
+  rpc GetName (Request) returns (NameResponse) {}
+  rpc GetAge (Request) returns (AgeResponse) {}
 }
 
-message HelloRequest {
+message Request {
 }
 
-message HelloResponse {
-  int64 code = 1;
-  string msg = 2;
+message NameResponse {
+  string name = 1;
+}
+
+message AgeResponse {
+  uint64 age = 1;
 }

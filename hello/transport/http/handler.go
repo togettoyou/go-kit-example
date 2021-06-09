@@ -14,9 +14,9 @@ import (
 	"os"
 )
 
-func MakeHttpHandler(eps endpoints.HelloEndPoints) http.Handler {
+func NewHttpHandler(eps endpoints.HelloEndPoints) http.Handler {
 	r := mux.NewRouter()
-	options := getServerOption()
+	options := getServerOptions()
 	r.Methods("GET").Path("/name").Handler(newServer(eps.GetNameEndpoint, options))
 	r.Methods("GET").Path("/age").Handler(newServer(eps.GetAgeEndpoint, options))
 	return r
@@ -31,7 +31,7 @@ func newServer(e endpoint.Endpoint, options []kitHttp.ServerOption) http.Handler
 	)
 }
 
-func getServerOption() []kitHttp.ServerOption {
+func getServerOptions() []kitHttp.ServerOption {
 	logger := kitLog.NewLogfmtLogger(os.Stderr)
 	logger = kitLog.With(logger, "ts", kitLog.DefaultTimestampUTC)
 	logger = kitLog.With(logger, "caller", kitLog.DefaultCaller)
@@ -42,20 +42,17 @@ func getServerOption() []kitHttp.ServerOption {
 	return options
 }
 
-// Request拦截
 func decodeRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	log.Println("Request拦截-decodeRequest")
-	return nil, nil
+	return r, nil
 }
 
-// Response拦截
 func encodeJSONResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	log.Println("Response拦截-encodeJSONResponse")
 	w.Header().Set("Content-Type", "application/json;charset=utf-8")
 	return json.NewEncoder(w).Encode(response)
 }
 
-// 错误拦截
 func encodeError(_ context.Context, err error, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	switch err {
